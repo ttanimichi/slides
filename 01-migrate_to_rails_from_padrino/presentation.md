@@ -5,19 +5,18 @@ slidenumbers: true
 # アプリケーション
 # Rails 移行
 
-## Migrate to Rails from Padrino
-
-### 2016/04/11 @ttanimichi
+### 2016/04/27 @ttanimichi
 
 ---
 
 # 自己紹介
 
-- プログラマ
-- Ruby, DevOps, Java
-- 2014年6月〜現在 株式会社Aiming
-  - もともと基盤側を作っていた。最近ゲームタイトルに異動
+- @ttanimichi
+- 2014年6月〜 株式会社 Aiming
+  - 共通基盤の開発をしていた
+  - 最近ゲームタイトルに異動
 - https://github.com/ttanimichi
+- info@ttanimichi.com
 
 ---
 
@@ -80,12 +79,16 @@ slidenumbers: true
 
 ---
 
-![](cookpad.png)
+![inline](cookpad.png)
 
 ---
 
-## [fit] COOKPAD で 1500 Models
-## [fit] COOKPAD の 1/3 くらい？？
+# rake stats
+
+- COOKPAD で 1500 Models
+- `lib/` 以下にも Model っぽいクラスが100個くらいあった
+- あわせると 500 Models くらい
+- COOKPAD の 1/3 くらい？？
 
 ---
 
@@ -96,9 +99,10 @@ slidenumbers: true
 # つらみ
 
 - rake spec に1時間かかる
-- autoload 使ってない
-  - 起動にN分くらいかかる
-- AR のキャッシュが効いてない
+- autoload 使ってなかった
+  - 起動に2分くらいかかる
+  - spec 一件実行するだけでも2分
+- AR のキャッシュが効いてないっぽい？？
 
 ---
 
@@ -122,3 +126,140 @@ slidenumbers: true
 ---
 
 ![fit](dio.png)
+
+---
+
+# 移行コスト
+
+- Padrino から Rails への移行
+- activerecord のバージョンを上げる
+- activesupport のバージョンを上げる
+- ついでに Ruby のバージョンも上げる
+
+---
+
+# 方針
+
+- まずは Rails4 で動かすことだけ考える
+- 「ついでにリファクタリング」は認めない
+- 機械的に移行作業だけする
+- リファクタリングや細かい改善は移行後にいくらでもできる
+
+---
+
+# 方針
+
+- Railsへの移行という「大きい問題」
+  - 同時にリファクタリングもしはじめると永遠に移行作業が完了しない
+  - ビジネス側がキレる → 移行が失敗
+- とにかく機械的に移行する
+  - 何も考えずに spec がコケている所を直す
+
+---
+
+# 移行手順
+
+- とにかくまずはディレクトリ構造を作る
+- Padrino 側から Models などを移していく
+- `bundle exec rspec` が動くところまでは一人でもってく
+  - `rails new`
+  - `rails generate rspec:install`
+  - database.yml の設定とか
+
+---
+
+![fit](log1.png)
+
+---
+
+![fit](log2.png)
+
+---
+
+# bundle exec rspec 動いた
+
+- ここから先はメンバーに作業を振る
+- とにかく spec さえ動けば分業できる
+- 分担して spec がコケている部分を修正
+
+---
+
+# 盛大にコケる spec
+
+---
+
+![inline](fff.png)
+
+---
+
+# 盛大にコケる spec
+
+- どんだけコケてても spec が動きさえすれば修正はメンバーに分担できる
+- Active Record 3 と 4 の非互換とか
+- 設定まわりの問題
+- padrino helper への依存
+  - 同じ名前のメソッドを定義して rails の helper へアクセスするよう修正
+
+---
+
+# できました
+
+```sh
+% rails -v
+Rails 4.2.4
+
+% ruby -v
+ruby 2.3.0p0 (2015-12-25 revision 53290) [x86_64-darwin14]
+```
+
+### 本番環境で既に動いてます
+
+---
+
+# 振り返り
+
+---
+
+![fit](KPT.png)
+
+---
+
+# 振り返り
+
+- 移行コストに見合うだけのメリットがあったのかなかったのかは「分からない」
+- メンバーの開発に対するモチベーションアップ
+- 大掛かりな移行には勇気と決断力が必要
+- Padrino のまま最低限の改善だけするって選択肢もアリだったかも
+
+---
+
+# おまけ
+
+---
+
+# 管理画面
+
+- 本体と管理画面は別アプリケーション
+- 管理ツール側は本体側の Model を参照
+- 管理ツール側は一旦 Padrino のまま残した
+- 一部の Model が Rails.env に依存（良くない）
+- Padrino の場合は Padrino.env を参照したい
+
+---
+
+# Rails = Padrino キタコレ
+
+```
+Rails = Padrino
+Rails.env #=> "development"
+```
+
+初期化時に Rails という定数を定義
+
+※ ネタです
+※ 管理画面も Rails への移行作業を今しているよ
+※ 管理画面の Rails 移行もほとんど完了
+
+---
+
+# [fit] ご静聴ありがとうございました
